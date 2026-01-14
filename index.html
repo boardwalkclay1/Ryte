@@ -1,0 +1,38 @@
+<!-- public/index.html -->
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>The Code – Perfect Setup Monitor</title>
+  <style>
+    body { background:#050810; color:#e5f0ff; font-family:system-ui; }
+    .alert { border:1px solid #00ff99; padding:12px; margin:8px 0; border-radius:6px; }
+    .badge { font-size:10px; text-transform:uppercase; color:#00ff99; }
+  </style>
+</head>
+<body>
+  <h1>The Code – Live Perfect Setups</h1>
+  <div id="alerts"></div>
+
+  <script>
+    const alertsDiv = document.getElementById("alerts");
+    const ws = new WebSocket("ws://localhost:4001");
+
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+
+      if (data.type === "PERFECT_SETUP_ALERT") {
+        const el = document.createElement("div");
+        el.className = "alert";
+        el.innerHTML = `
+          <div class="badge">Perfect Setup</div>
+          <div><strong>Symbol:</strong> ${data.symbol}</div>
+          <div><strong>Time:</strong> ${new Date(data.time).toLocaleTimeString()}</div>
+          <div><strong>Notes:</strong> ${data.details.issues.length === 0 ? "All conditions met" : data.details.issues.join(", ")}</div>
+        `;
+        alertsDiv.prepend(el);
+      }
+    };
+  </script>
+</body>
+</html>
